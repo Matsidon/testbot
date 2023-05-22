@@ -14,11 +14,5 @@ public class MatsTestBotApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(MatsTestBotApplication.class, args);
-
-		String url = "https://context.reverso.net/перевод/русский-английский/привет";
-		String jsonFrom = getJsonFromUrl(url);
-		Gson gson = new Gson();
-		System.out.println(jsonFrom);
-
 	}
 }
