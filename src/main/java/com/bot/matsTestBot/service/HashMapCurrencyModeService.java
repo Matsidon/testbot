@@ -2,11 +2,13 @@ package com.bot.matsTestBot.service;
 
 import com.bot.matsTestBot.model.Currency;
 import lombok.Data;
+import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.Map;
 
 @Data
+@Component
 public class HashMapCurrencyModeService implements CurrencyModeService {
     Map<Long, Currency> savedOriginalCurrencies = new HashMap<>();
     Map<Long, Currency> savedTargetCurrencies = new HashMap<>();

@@ -8,8 +8,10 @@ import lombok.extern.slf4j.Slf4j;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import org.springframework.stereotype.Component;
 
 @Slf4j
+@Component
 public class CurrencyConversionServiceImpl implements CurrencyConversionService {
 
     @Override

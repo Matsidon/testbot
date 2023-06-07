@@ -1,6 +1,8 @@
 package com.bot.matsTestBot.service;
 
 import com.bot.matsTestBot.model.Currency;
+import org.checkerframework.checker.units.qual.C;
+import org.springframework.stereotype.Component;
 
 public interface CurrencyModeService {
 
