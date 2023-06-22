@@ -6,6 +6,8 @@ import lombok.Setter;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 
+import java.util.Optional;
+
 @Component
 @Getter
 @Setter
@@ -17,5 +19,5 @@ public abstract class UserCallBack {
     }
 
     public abstract boolean isSupported(String command);
-    public abstract SendMessage execute(long chatId, String[] currency);
+    public abstract Optional<SendMessage> execute(long chatId, String[] currency);
 }

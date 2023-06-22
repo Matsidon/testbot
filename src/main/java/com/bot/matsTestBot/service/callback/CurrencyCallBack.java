@@ -1,10 +1,13 @@
 package com.bot.matsTestBot.service.callback;
 
+import com.bot.matsTestBot.model.Currency;
 import com.bot.matsTestBot.service.CurrencyModeService;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+
+import java.util.Optional;
 
 @Component
 @Getter
@@ -21,8 +24,11 @@ public class CurrencyCallBack extends UserCallBack {
     }
 
     @Override
-    public SendMessage execute(long chatId, String[] currency) {
+    public Optional<SendMessage> execute(long chatId, String[] currency) {
         getCurrencyModeService().setContinueButton(chatId);
-        return new SendMessage(String.valueOf(chatId), String.format("Введите сумму в %s", getCurrencyModeService().getOriginalCurrency(chatId).name()));
+        Currency originalCurrency = getCurrencyModeService().getOriginalCurrency(chatId);
+        return Optional.of(new SendMessage(String.valueOf(chatId),
+                String.format("Введите сумму в %s", originalCurrency != null ?
+                        originalCurrency.name() : null)));
     }
 }

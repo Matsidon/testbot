@@ -17,23 +17,31 @@ public class CurrencyConversionServiceImpl implements CurrencyConversionService 
     @Override
     @SneakyThrows
     public double convert(Currency original, Currency target, double count) {
-        String urlFrom = "https://www.nbrb.by/api/exrates/rates/" + original.name().toLowerCase() + "?parammode=2";
-        String urlTo = "https://www.nbrb.by/api/exrates/rates/" + target.name().toLowerCase() + "?parammode=2";
-        String jsonFrom = getJsonFromUrl(urlFrom);
-        String jsonTo = getJsonFromUrl(urlTo);
-        Gson gson = new Gson();
-        CurrencyInputDto currencyInputFromDto = gson.fromJson(jsonFrom, CurrencyInputDto.class);
-        CurrencyInputDto currencyInputToDto = gson.fromJson(jsonTo, CurrencyInputDto.class);
-        return count * (currencyInputFromDto.getCur_OfficialRate() / currencyInputFromDto.getCur_Scale()) / (currencyInputToDto.getCur_OfficialRate() / currencyInputToDto.getCur_Scale());
+        try {
+            String urlFrom = "https://www.nbrb.by/api/exrates/rates/" + original.name().toLowerCase() + "?parammode=2";
+            String urlTo = "https://www.nbrb.by/api/exrates/rates/" + target.name().toLowerCase() + "?parammode=2";
+            String jsonFrom = getJsonFromUrl(urlFrom);
+            String jsonTo = getJsonFromUrl(urlTo);
+            Gson gson = new Gson();
+            CurrencyInputDto currencyInputFromDto = gson.fromJson(jsonFrom, CurrencyInputDto.class);
+            CurrencyInputDto currencyInputToDto = gson.fromJson(jsonTo, CurrencyInputDto.class);
+            return count * (currencyInputFromDto.getCur_OfficialRate() / currencyInputFromDto.getCur_Scale()) / (currencyInputToDto.getCur_OfficialRate() / currencyInputToDto.getCur_Scale());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return -1;
     }
 
-    public static String getJsonFromUrl(String url) {
+    private String getJsonFromUrl(String url) {
         OkHttpClient client = new OkHttpClient();
         Request request = new Request.Builder()
                 .url(url)
                 .build();
         try (Response response = client.newCall(request).execute()) {
-            return response.body().string();
+            if (response.body() != null) {
+                return response.body().string();
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }

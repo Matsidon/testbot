@@ -4,9 +4,9 @@ import com.bot.matsTestBot.service.callback.UserCallBack;
 import com.bot.matsTestBot.service.message.UserMessage;
 import com.bot.matsTestBot.model.Currency;
 import com.bot.matsTestBot.config.TgBotConfig;
+import com.bot.matsTestBot.service.message.WrongMessage;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.AnswerPreCheckoutQuery;
@@ -31,7 +31,6 @@ public class TgBotConnector extends TelegramLongPollingBot {
     private final List<UserMessage> messages;
     private final List<UserCallBack> callBacks;
 
-    @Autowired
     public TgBotConnector(TgBotConfig tgBotConfig, CurrencyModeService currencyModeService,
                           CurrencyConversionService currencyConversionService, List<UserMessage> messages, List<UserCallBack> callBacks) {
         this.tgBotConfig = tgBotConfig;
@@ -68,13 +67,22 @@ public class TgBotConnector extends TelegramLongPollingBot {
                     .build());
         } else if (update.hasMessage() && update.getMessage().hasLocation()) {
             Message message = update.getMessage();
-            handleMessage(message);
+            handleLocation(message);
         } else if (update.hasCallbackQuery()) {
             handleCallBack(update);
         } else if (update.hasMessage() && update.getMessage().hasText()) {
             Message message = update.getMessage();
             handleMessage(message);
         }
+
+    }
+
+    public void handleLocation(Message message) {
+        //todo
+        long chatId = message.getChatId();
+        String userName = message.getChat().getFirstName();
+        double longitude = message.getLocation().getLongitude();
+        double latitude = message.getLocation().getLatitude();
 
     }
 
@@ -94,7 +102,7 @@ public class TgBotConnector extends TelegramLongPollingBot {
                     .filter(m -> m.isSupported(command))
                     .findFirst()
                     .map(m -> m.send(chatId, userName))
-                    .orElse(new SendMessage(String.valueOf(chatId), "Я такое еще не умею"));
+                    .orElse(new WrongMessage().send(chatId, userName));
             execute(sendMessage);
         }
         try {
@@ -110,12 +118,15 @@ public class TgBotConnector extends TelegramLongPollingBot {
     @SneakyThrows
     private void handleCallBack(Update update) {
         String[] currency = update.getCallbackQuery().getData().split(": ");
-        long chatId = update.getCallbackQuery().getMessage().getChatId();
+        Message message = update.getCallbackQuery().getMessage();
+        long chatId = message.getChatId();
+        String userName = message.getChat().getFirstName();
         String action = currency[0];
         Optional<SendMessage> sendMessage = callBacks.stream()
                 .filter(c -> c.isSupported(action))
                 .findFirst()
-                .map(c -> c.execute(chatId, currency));
+                .map(c -> c.execute(chatId, currency))
+                .orElse(Optional.ofNullable(new WrongMessage().send(chatId, userName)));
 
         if (sendMessage.isPresent()) {
             execute(sendMessage.get());
